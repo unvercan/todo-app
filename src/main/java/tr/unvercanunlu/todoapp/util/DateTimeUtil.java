@@ -1,12 +1,10 @@
-package tr.unvercanunlu.todoapp.service;
+package tr.unvercanunlu.todoapp.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import org.springframework.stereotype.Component;
 
-@Component
-public class DateTimeService {
+public class DateTimeUtil {
 
   private static final ZoneId UTC = ZoneId.of("UTC");
 

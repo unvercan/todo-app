@@ -1,14 +1,12 @@
-package tr.unvercanunlu.todoapp.service;
+package tr.unvercanunlu.todoapp.util;
 
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-@Component
 @RequiredArgsConstructor
-public class ValidationService {
+public class ValidationUtil {
 
-  private final DateTimeService dateTimeService;
+  private final DateTimeUtil dateTimeUtil;
 
   public boolean validateId(Long id) {
     return (id == null) || (id <= 0);
@@ -18,12 +16,12 @@ public class ValidationService {
     return (task == null) || task.isBlank();
   }
 
-  public boolean validateDueDate(LocalDateTime dueDate) {
+  public boolean isDueDateInPast(LocalDateTime dueDate) {
     if (dueDate == null) {
       return false;
     }
 
-    LocalDateTime now = dateTimeService.nowUtc();
+    LocalDateTime now = dateTimeUtil.nowUtc();
     return dueDate.isBefore(now);
   }
 

@@ -1,0 +1,25 @@
+package tr.unvercanunlu.todoapp.util;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import tr.unvercanunlu.todoapp.repository.ToDoRepository;
+
+@Configuration
+public class UtilConfig {
+
+  @Bean
+  public DateTimeUtil dateTimeUtil() {
+    return new DateTimeUtil();
+  }
+
+  @Bean
+  public ValidationUtil validationUtil(DateTimeUtil dateTimeUtil) {
+    return new ValidationUtil(dateTimeUtil);
+  }
+
+  @Bean
+  public IdUtil idUtil(ToDoRepository toDoRepository) {
+    return new IdUtil(toDoRepository);
+  }
+
+}

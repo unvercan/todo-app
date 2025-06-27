@@ -1,5 +1,6 @@
 package tr.unvercanunlu.todoapp.util;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import tr.unvercanunlu.todoapp.repository.ToDoRepository;
@@ -20,6 +21,12 @@ public class UtilConfig {
   @Bean
   public IdUtil idUtil(ToDoRepository toDoRepository) {
     return new IdUtil(toDoRepository);
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "auth.enabled", havingValue = "true")
+  public AuthUtil authUtil() {
+    return new AuthUtil();
   }
 
 }

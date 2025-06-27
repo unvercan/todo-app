@@ -6,3 +6,6 @@ spring:
       username: ${MONGO_USERNAME:username}
       password: ${MONGO_PASSWORD:password}
       authentication-database: admin
+
+auth:
+  enabled: true

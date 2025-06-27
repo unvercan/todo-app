@@ -5,6 +5,7 @@ import static tr.unvercanunlu.todoapp.config.AuthConfig.ROLE_USER;
 import static tr.unvercanunlu.todoapp.config.AuthConfig.TOKEN_HEADER;
 
 import java.net.URI;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import tr.unvercanunlu.todoapp.model.ToDo;
 import tr.unvercanunlu.todoapp.model.ToDoRequest;
 import tr.unvercanunlu.todoapp.service.ToDoService;
-import tr.unvercanunlu.todoapp.util.ValidationUtil;
+import tr.unvercanunlu.todoapp.util.AuthUtil;
 
 @RestController
 @RequestMapping("/todos")
@@ -30,7 +31,7 @@ import tr.unvercanunlu.todoapp.util.ValidationUtil;
 public class ToDoController {
 
   private final ToDoService toDoService;
-  private final ValidationUtil validationUtil;
+  private final Optional<AuthUtil> authUtil;
 
   @PostMapping
   public ResponseEntity<ToDo> createToDo(@RequestBody ToDoRequest request) {
@@ -57,7 +58,8 @@ public class ToDoController {
       @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role) {
 
     // HTTP request header / HTTP cookie based authorization control
-    if (!(validationUtil.isTokenMatched(token) || validationUtil.isRoleMatched(role))) {
+    if (authUtil.isPresent() &&
+        (!(authUtil.get().isTokenMatched(token) || authUtil.get().isRoleMatched(role)))) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .build();
     }
@@ -90,7 +92,8 @@ public class ToDoController {
       @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role) {
 
     // HTTP request header / HTTP cookie based authorization control
-    if (!(validationUtil.isTokenMatched(token) || validationUtil.isRoleMatched(role))) {
+    if (authUtil.isPresent() &&
+        (!(authUtil.get().isTokenMatched(token) || authUtil.get().isRoleMatched(role)))) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .build();
     }

@@ -1,11 +1,14 @@
 package tr.unvercanunlu.todoapp.controller;
 
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,8 +26,10 @@ public class ToDoController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public ToDo createToDo(@RequestBody ToDoRequest request) {
-    return toDoService.createToDo(request);
+  public ResponseEntity<ToDo> createToDo(@RequestBody ToDoRequest request) {
+    ToDo created = toDoService.createToDo(request);
+    URI location = URI.create("/todos/%d".formatted(created.getId()));
+    return ResponseEntity.created(location).body(created);
   }
 
   @GetMapping("/{id}")
@@ -33,16 +38,22 @@ public class ToDoController {
     return toDoService.findToDoById(id);
   }
 
+  @PutMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  public ToDo updateToDo(@PathVariable Long id, @RequestBody ToDoRequest request) {
+    return toDoService.updateToDo(id, request);
+  }
+
   @PostMapping("/{id}/mark-done")
   @ResponseStatus(HttpStatus.OK)
   public ToDo markToDoDone(@PathVariable Long id) {
-    return toDoService.updateToDo(id, true);
+    return toDoService.markToDo(id, true);
   }
 
   @PostMapping("/{id}/mark-undone")
   @ResponseStatus(HttpStatus.OK)
   public ToDo markToDoUnDone(@PathVariable Long id) {
-    return toDoService.updateToDo(id, false);
+    return toDoService.markToDo(id, false);
   }
 
   @DeleteMapping("/{id}")

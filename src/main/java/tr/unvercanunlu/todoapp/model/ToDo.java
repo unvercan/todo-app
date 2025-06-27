@@ -16,6 +16,7 @@ public class ToDo {
 
   private String task;
   private boolean completed;
+  private LocalDateTime dueDate;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 

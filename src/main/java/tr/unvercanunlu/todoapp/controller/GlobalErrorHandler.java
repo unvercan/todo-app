@@ -23,7 +23,8 @@ public class GlobalErrorHandler {
         Objects.toString(exception.getData(), "null")
     );
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(response);
   }
 
   @ExceptionHandler(ToDoNotFoundException.class)
@@ -34,8 +35,19 @@ public class GlobalErrorHandler {
         Objects.toString(exception.getData(), "null")
     );
 
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(response);
   }
 
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleGeneric(Exception exception) {
+    ErrorResponse response = new ErrorResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        "An unexpected error occurred",
+        exception.getMessage()
+    );
 
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(response);
+  }
 }

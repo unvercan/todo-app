@@ -3,50 +3,68 @@ version: "3.8"
 services:
   mongodb:
     image: mongo:8.0.10
-    container_name: todo-app-mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:-unver}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-12345}
+    container_name: todo-mongodb
     ports:
       - "${MONGODB_PORT:-27017}:27017"
     networks:
-      - todo-app-network
+      - todo-network
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:-user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-12345}
     volumes:
       - mongodb_data:/data/db
 
   mongo-express:
     image: mongo-express:1.0.2
-    container_name: todo-app-mongo-express
+    container_name: todo-mongo-express
+    ports:
+      - "${MONGO_EXPRESS_UI_PORT:-8081}:8081"
+    networks:
+      - todo-network
     environment:
-      ME_CONFIG_MONGODB_SERVER: todo-app-mongodb
+      ME_CONFIG_MONGODB_SERVER: ${MONGODB_HOST:-mongodb}
       ME_CONFIG_MONGODB_PORT: ${MONGODB_PORT:-27017}
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USERNAME:-unver}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USERNAME:-user}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_PASSWORD:-12345}
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-admin}
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-12345}
-    ports:
-      - "${MONGO_EXPRESS_PORT:-8081}:8081"
-    networks:
-      - todo-app-network
     depends_on:
       - mongodb
 
   jenkins:
     image: jenkins/jenkins:2.516
-    container_name: todo-app-jenkins
+    container_name: todo-jenkins
     ports:
       - "${JENKINS_UI_PORT:-8080}:8080"
       - "${JENKINS_PORT:-50000}:50000"
     networks:
-      - todo-app-network
+      - todo-network
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+
+  app:
+    image: todo-app:latest
+    container_name: todo-app
+    build:
+      context: .
+    ports:
+      - "${APP_PORT:-3535}:3535"
+    networks:
+      - todo-network
+    environment:
+      APP_PORT: ${APP_PORT:-3535}
+      MONGODB_HOST: ${MONGODB_HOST:-mongodb}
+      MONGODB_PORT: ${MONGODB_PORT:-27017}
+      MONGODB_USERNAME: ${MONGODB_USERNAME:-user}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD:-12345}
+    depends_on:
+      - mongodb
 
 volumes:
   mongodb_data:
   jenkins_home:
 
 networks:
-  todo-app-network:
-    name: todo-app-network
+  todo-network:
+    name: todo-network

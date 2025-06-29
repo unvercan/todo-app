@@ -13,6 +13,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-12345}
     volumes:
       - mongodb_data:/data/db
+    restart:
+      unless-stopped
 
   mongo-express:
     image: mongo-express:1.0.2
@@ -30,7 +32,12 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-12345}
     depends_on:
       - mongodb
+    restart:
+      unless-stopped
 
+  # post start cli command to install docker (root permission required)
+  # docker exec -u root -it todo-jenkins /bin/sh
+  # apt-get update && apt-get install -y docker.io
   jenkins:
     image: jenkins/jenkins:latest-jdk17
     container_name: todo-jenkins
@@ -44,6 +51,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     user: root
     privileged: true
+    restart:
+      unless-stopped
 
   app:
     image: todo-app:latest
@@ -62,6 +71,8 @@ services:
       MONGODB_PASSWORD: ${MONGODB_PASSWORD:-12345}
     depends_on:
       - mongodb
+    restart:
+      unless-stopped
 
 volumes:
   mongodb_data:

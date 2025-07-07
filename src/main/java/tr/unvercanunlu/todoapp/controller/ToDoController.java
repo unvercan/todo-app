@@ -5,7 +5,6 @@ import static tr.unvercanunlu.todoapp.config.AuthConfig.ROLE_USER;
 import static tr.unvercanunlu.todoapp.config.AuthConfig.TOKEN_HEADER;
 
 import java.net.URI;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tr.unvercanunlu.todoapp.exception.DueDateNotValidException;
+import tr.unvercanunlu.todoapp.exception.IdNotValidException;
+import tr.unvercanunlu.todoapp.exception.TaskNotValidException;
+import tr.unvercanunlu.todoapp.exception.ToDoNotFoundException;
 import tr.unvercanunlu.todoapp.model.ToDo;
 import tr.unvercanunlu.todoapp.model.ToDoRequest;
 import tr.unvercanunlu.todoapp.service.ToDoService;
@@ -31,10 +34,10 @@ import tr.unvercanunlu.todoapp.util.AuthUtil;
 public class ToDoController {
 
   private final ToDoService toDoService;
-  private final Optional<AuthUtil> authUtil;
+  private final AuthUtil authUtil;
 
   @PostMapping
-  public ResponseEntity<ToDo> createToDo(@RequestBody ToDoRequest request) {
+  public ResponseEntity<ToDo> createToDo(@RequestBody ToDoRequest request) throws DueDateNotValidException, TaskNotValidException {
     ToDo created = toDoService.createToDo(request);
 
     URI location = URI.create("/todos/%d".formatted(created.getId()));
@@ -45,7 +48,7 @@ public class ToDoController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<ToDo> retrieveToDo(@PathVariable Long id) {
+  public ResponseEntity<ToDo> retrieveToDo(@PathVariable Long id) throws ToDoNotFoundException, IdNotValidException {
     ToDo retrieved = toDoService.findToDoById(id);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -55,11 +58,11 @@ public class ToDoController {
   @PutMapping("/{id}")
   public ResponseEntity<ToDo> updateToDo(@PathVariable Long id, @RequestBody ToDoRequest request,
       @RequestHeader(name = TOKEN_HEADER, required = false) String token,
-      @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role) {
+      @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role)
+      throws ToDoNotFoundException, DueDateNotValidException, TaskNotValidException, IdNotValidException {
 
     // HTTP request header / HTTP cookie based authorization control
-    if (authUtil.isPresent() &&
-        (!(authUtil.get().isTokenMatched(token) || authUtil.get().isRoleMatched(role)))) {
+    if ((authUtil != null) && (!(authUtil.isTokenMatched(token) || authUtil.isRoleMatched(role)))) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .build();
     }
@@ -71,7 +74,7 @@ public class ToDoController {
   }
 
   @PatchMapping("/{id}/mark-done")
-  public ResponseEntity<ToDo> markToDoDone(@PathVariable Long id) {
+  public ResponseEntity<ToDo> markToDoDone(@PathVariable Long id) throws ToDoNotFoundException, IdNotValidException {
     ToDo updated = toDoService.markToDo(id, true);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -79,7 +82,7 @@ public class ToDoController {
   }
 
   @PatchMapping("/{id}/mark-undone")
-  public ResponseEntity<ToDo> markToDoUnDone(@PathVariable Long id) {
+  public ResponseEntity<ToDo> markToDoUnDone(@PathVariable Long id) throws ToDoNotFoundException, IdNotValidException {
     ToDo updated = toDoService.markToDo(id, false);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -89,11 +92,10 @@ public class ToDoController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteToDo(@PathVariable Long id,
       @RequestHeader(name = TOKEN_HEADER, required = false) String token,
-      @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role) {
+      @CookieValue(name = ROLE_HEADER, defaultValue = ROLE_USER, required = false) String role) throws IdNotValidException {
 
     // HTTP request header / HTTP cookie based authorization control
-    if (authUtil.isPresent() &&
-        (!(authUtil.get().isTokenMatched(token) || authUtil.get().isRoleMatched(role)))) {
+    if ((authUtil != null) && (!(authUtil.isTokenMatched(token) || authUtil.isRoleMatched(role)))) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .build();
     }

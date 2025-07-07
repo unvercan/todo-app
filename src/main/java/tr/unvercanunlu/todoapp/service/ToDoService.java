@@ -83,7 +83,8 @@ public class ToDoService {
     return toDoRepository.save(toDo);
   }
 
-  public ToDo updateToDo(Long id, ToDoRequest request) throws IdNotValidException, ToDoNotFoundException, DueDateNotValidException {
+  public ToDo updateToDo(Long id, ToDoRequest request)
+      throws IdNotValidException, ToDoNotFoundException, DueDateNotValidException, TaskNotValidException {
     if (request == null) {
       throw new IllegalArgumentException("ToDo is null!");
     }

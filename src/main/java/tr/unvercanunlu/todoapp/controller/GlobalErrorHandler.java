@@ -19,7 +19,7 @@ public class GlobalErrorHandler {
   public ResponseEntity<ErrorResponse> handleBadRequest(ApplicationException exception) {
     ErrorResponse response = new ErrorResponse(
         HttpStatus.BAD_REQUEST.value(),
-        exception.getReason(),
+        exception.getMessage(),
         Objects.toString(exception.getData(), "null")
     );
 
@@ -31,7 +31,7 @@ public class GlobalErrorHandler {
   public ResponseEntity<ErrorResponse> handleNotFound(ToDoNotFoundException exception) {
     ErrorResponse response = new ErrorResponse(
         HttpStatus.NOT_FOUND.value(),
-        exception.getReason(),
+        exception.getMessage(),
         Objects.toString(exception.getData(), "null")
     );
 
